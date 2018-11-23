@@ -6,7 +6,7 @@ from sqlalchemy.exc import OperationalError
 from ..utils.engines import WIND_DB
 
 
-def industry(trade_dt, sid=None, level=1):
+def get_industry(trade_dt, sid=None, level=1):
     """返回trade_dt时间截面上对应sid的中信行业分类.
 
     Args:
@@ -17,7 +17,7 @@ def industry(trade_dt, sid=None, level=1):
     Returns:
         DataFrame like |sid|trade_dt(datetime)|ind_sid|ind_name|
     """
-    df = industry_all(level)
+    df = get_industry_all(level)
     if sid is not None:
         sid = {sid} if isinstance(sid, str) else set(sid)
         df = df[df['sid'].isin(sid)]
@@ -33,7 +33,7 @@ def industry(trade_dt, sid=None, level=1):
 
 
 @lru_cache()
-def industry_all(level=1):
+def get_industry_all(level=1):
     clss = WIND_DB.ASHAREINDUSTRIESCLASSCITICS
     ind_code = WIND_DB.ASHAREINDUSTRIESCODE
     df = WIND_DB.query(
@@ -52,4 +52,4 @@ def industry_all(level=1):
 
 
 if __name__ == '__main__':
-    print(industry_all().head())
+    print(get_industry_all().head())
