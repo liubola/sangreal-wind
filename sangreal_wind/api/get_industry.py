@@ -15,7 +15,7 @@ def get_industry(trade_dt, sid=None, level=1):
         level: level of zx industry.
         
     Returns:
-        DataFrame like |sid|trade_dt(datetime)|ind_sid|ind_name|
+        DataFrame like |sid:ind|
     """
     df = get_industry_all(level)
     if sid is not None:
@@ -25,11 +25,7 @@ def get_industry(trade_dt, sid=None, level=1):
     df = df.loc[(df['entry_dt'] <= trade_dt) & (
         (df['out_dt'] >= trade_dt) | (df['out_dt'].isnull()))].copy()
     df['trade_dt'] = adjust_trade_dt(trade_dt)
-    return df[[
-        'sid',
-        'trade_dt',
-        'ind_name',
-    ]]
+    return df.set_index('sid')[['ind']]
 
 
 @lru_cache()
@@ -47,7 +43,7 @@ def get_industry_all(level=1):
         df = df.filter(
             func.substr(clss.CITICS_IND_CODE, 1, 2 + 2 * level) == func.substr(
                 ind_code.INDUSTRIESCODE, 1, 2 + 2 * level)).to_df()
-    df.columns = ['sid', 'entry_dt', 'out_dt', 'ind_name']
+    df.columns = ['sid', 'entry_dt', 'out_dt', 'ind']
     return df
 
 
