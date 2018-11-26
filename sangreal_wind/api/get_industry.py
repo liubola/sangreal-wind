@@ -3,11 +3,11 @@ from sangreal_calendar import adjust_trade_dt
 from sqlalchemy import func
 from sqlalchemy.exc import OperationalError
 
-from ..utils.engines import WIND_DB
+from sangreal_wind.utils.engines import WIND_DB
 
 
 def get_industry(trade_dt, sid=None, level=1):
-    """返回trade_dt时间截面上对应sid的中信行业分类.
+    """返回trade_dt时间截面上对应sid的中信行业分类.包含退市股票
 
     Args:
         trade_dt: str or datetime.
@@ -48,4 +48,4 @@ def get_industry_all(level=1):
 
 
 if __name__ == '__main__':
-    print(get_industry_all().head())
+    print(get_industry('20181122').head())
