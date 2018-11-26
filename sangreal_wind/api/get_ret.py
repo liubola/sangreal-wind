@@ -3,10 +3,12 @@ from sangreal_wind.utils.datetime_handle import dt_handle
 from sangreal_calendar import step_trade_dt
 
 
-def get_daily_ret(sid=None,
-                  begin_dt='20030101',
-                  end_dt='20990101',
-                  trade_dt=None):
+def get_daily_ret(
+        sid=None,
+        trade_dt=None,
+        begin_dt='20030101',
+        end_dt='20990101',
+):
     """[get daily_ret of stocks,]
     
     Keyword Arguments:
@@ -14,6 +16,9 @@ def get_daily_ret(sid=None,
         begin_dt {str or datetime} -- [begin_dt] (default: {'20030101'})
         end_dt {str or datetime} -- [end_dt] (default: {'20990101'})
         trade_dt {[str or datetime]} -- [trade_dt] (default: {None})
+
+    Returns:
+        ret {pd.DataFrame} -- [sid: trade_dt]
     """
     begin_dt, end_dt = step_trade_dt(dt_handle(begin_dt),
                                      -1), dt_handle(end_dt)
@@ -22,8 +27,9 @@ def get_daily_ret(sid=None,
                           table.S_DQ_ADJCLOSE)
     if sid is not None:
         if isinstance(sid, str):
-            sid = [sid]
-        query = query.filter(table.S_INFO_WINDCODE.in_(sid))
+            query = query.filter(table.S_INFO_WINDCODE == sid)
+        else:
+            query = query.filter(table.S_INFO_WINDCODE.in_(sid))
 
     if trade_dt is not None:
         begin_dt = step_trade_dt(trade_dt, -1)
