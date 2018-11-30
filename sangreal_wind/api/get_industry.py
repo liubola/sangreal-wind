@@ -1,22 +1,27 @@
+import re
 from fastcache import lru_cache
-from sangreal_calendar import adjust_trade_dt
 from sqlalchemy import func
 from sqlalchemy.exc import OperationalError
+from sangreal_wind.utils import dt_handle
 
 from sangreal_wind.utils.engines import WIND_DB
 
 
 def get_industry(trade_dt, sid=None, level=1):
-    """返回trade_dt时间截面上对应sid的中信行业分类.包含退市股票
-
-    Args:
-        trade_dt: str or datetime.
-        sid: str or tuple.
-        level: level of zx industry.
-        
+    """[get industry of stock 中信行业]
+    
+    Arguments:
+        trade_dt {[str or datetime]} -- [trade_dt]
+    
+    Keyword Arguments:
+        sid {[str or iterable]} -- [sids of stocks] (default: {None})
+        level {int} -- [level of zx industry] (default: {1})
+    
     Returns:
-        DataFrame like |sid:ind|
+        [pd.DataFrame] -- [sid: ind]
     """
+
+    trade_dt = dt_handle(trade_dt)
     df = get_industry_all(level)
     if sid is not None:
         sid = {sid} if isinstance(sid, str) else set(sid)
@@ -24,7 +29,6 @@ def get_industry(trade_dt, sid=None, level=1):
 
     df = df.loc[(df['entry_dt'] <= trade_dt) & (
         (df['out_dt'] >= trade_dt) | (df['out_dt'].isnull()))].copy()
-    df['trade_dt'] = adjust_trade_dt(trade_dt)
     return df.set_index('sid')[['ind']]
 
 
@@ -37,14 +41,52 @@ def get_industry_all(level=1):
         ind_code.INDUSTRIESNAME).filter(ind_code.LEVELNUM == (level + 1))
     try:
         df = df.filter(
-            func.substring(clss.CITICS_IND_CODE, 1, 4) == func.substring(
-                ind_code.INDUSTRIESCODE, 1, 4)).to_df()
+            func.substring(clss.CITICS_IND_CODE, 1, 2 + 2 * level) == func.
+            substring(ind_code.INDUSTRIESCODE, 1, 2 + 2 * level)).to_df()
     except OperationalError:
         df = df.filter(
             func.substr(clss.CITICS_IND_CODE, 1, 2 + 2 * level) == func.substr(
                 ind_code.INDUSTRIESCODE, 1, 2 + 2 * level)).to_df()
     df.columns = ['sid', 'entry_dt', 'out_dt', 'ind']
     return df
+
+
+def get_industry_sp(trade_dt, sid=None, split=['银行', '非银行金融']):
+    """[将split中部分中信一级行业转换为相应的二级行业]
+    
+    Arguments:
+        trade_dt {[str]} -- [description]
+    
+    Keyword Arguments:
+        sid      {[str or iterable]} -- [sids of stocks] (default: {None})
+        split      {list} -- [industry which convert level1 to level2] (default: {['银行', '非银行金融']})
+    
+    Returns:
+        [pd.DataFrame] -- [sid: ind]
+    """
+    trade_dt = dt_handle(trade_dt)
+    df = get_industry_all(level=1)
+    if sid is not None:
+        sid = {sid} if isinstance(sid, str) else set(sid)
+        df = df[df['sid'].isin(sid)]
+
+    df = df.loc[(df['entry_dt'] <= trade_dt) & (
+        (df['out_dt'] >= trade_dt) | (df['out_dt'].isnull()))].copy()
+
+    split_sid = df[df['ind'].isin(split)]
+    normal_sid = df[~(df['ind'].isin(split))]
+    df1 = get_industry_all(level=2)
+    df1 = df1[df1['sid'].isin(split_sid.sid)]
+
+    df1 = df1.loc[(df1['entry_dt'] <= trade_dt) & (
+        (df1['out_dt'] >= trade_dt) | (df1['out_dt'].isnull()))].copy()
+    # 将一级和二级合并
+    df = normal_sid.append(df1, ignore_index=True)
+
+    # 去除行业中的罗马数字
+    p = re.compile(r"[^\u4e00-\u9fa5]")
+    df.ind = df.ind.str.replace(p, '', regex=True)
+    return df.set_index('sid')[['ind']]
 
 
 if __name__ == '__main__':
