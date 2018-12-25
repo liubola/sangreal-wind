@@ -35,7 +35,6 @@ def get_index_weight(index, trade_dt=None):
         trade_dt = dt.date.today()
     trade_dt = adjust_trade_dt(trade_dt)
     df = get_index_weight_all(index).copy()
-    print(df.head())
     df = df[(df['trade_dt'] <= trade_dt)]
     if df.empty:
         return pd.DataFrame()
@@ -50,4 +49,3 @@ def get_index_weight(index, trade_dt=None):
 if __name__ == '__main__':
     df = get_index_weight('000300.SH')
     print(df.head())
-    
