@@ -95,4 +95,4 @@ if __name__ == '__main__':
     # df = get_daily_ret(begin_dt='20181101')
     # print(df.head())
     df = get_monthly_ret(begin_dt='20180101', end_dt='20181223')
-    print(df.shape)
+    print(df)
