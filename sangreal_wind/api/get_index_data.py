@@ -76,7 +76,10 @@ def get_index_data(index_list, begin_dt='20010101', end_dt='20990101'):
         index_type='normal',
         begin_dt=begin_dt,
         end_dt=end_dt) if len(n_list) > 0 else pd.DataFrame()
-    df = pd.concat([wind_df, sw_df, zx_df, n_df], axis=0, ignore_index=True, sort=False)
+    df = pd.concat([wind_df, sw_df, zx_df, n_df],
+                   axis=0,
+                   ignore_index=True,
+                   sort=Falseind)
     return df
 
 
