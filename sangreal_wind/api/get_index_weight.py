@@ -2,7 +2,7 @@ import pandas as pd
 import datetime as dt
 from fastcache import lru_cache
 from sangreal_wind.utils.engines import WIND_DB
-from sangreal_calendar import adjust_trade_dt
+from sangreal_wind.sangreal_calendar import adjust_trade_dt
 
 
 @lru_cache()

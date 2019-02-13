@@ -1,6 +1,6 @@
 from sangreal_wind.utils.engines import WIND_DB
 from sangreal_wind.utils.datetime_handle import dt_handle
-from sangreal_calendar import step_trade_dt, Monthly
+from sangreal_wind.sangreal_calendar import step_trade_dt, Monthly
 
 # 月度类
 MONTH = Monthly(-1)
