@@ -16,10 +16,11 @@ def get_fund_nav(fund_list=None, begin_dt='20010101', end_dt='20990101'):
     """
 
     table = WIND_DB.CHINAMUTUALFUNDNAV
-    tmp_query = WIND_DB.query(
-        table.F_INFO_WINDCODE, table.PRICE_DATE, table.F_NAV_ADJUSTED).filter(
-            table.PRICE_DATE >= begin_dt, table.PRICE_DATE <= end_dt).order_by(
-                table.PRICE_DATE, table.F_INFO_WINDCODE)
+    tmp_query = WIND_DB.query(table.F_INFO_WINDCODE, table.PRICE_DATE,
+                              table.F_NAV_ADJFACTOR, table.F_NAV_UNIT).filter(
+                                  table.PRICE_DATE >= begin_dt,
+                                  table.PRICE_DATE <= end_dt).order_by(
+                                      table.PRICE_DATE, table.F_INFO_WINDCODE)
     if isinstance(fund_list, str):
         tmp_query = tmp_query.filter(table.F_INFO_WINDCODE == fund_list)
     elif isinstance(fund_list, Iterable):
@@ -28,7 +29,9 @@ def get_fund_nav(fund_list=None, begin_dt='20010101', end_dt='20990101'):
         pass
 
     df = tmp_query.to_df()
-    df.columns = ['f_sid', 'trade_dt', 's_close']
+    df.columns = ['f_sid', 'trade_dt', 'adjfactor', 'unit']
+    df['s_close'] = df['adjfactor'] * df['unit']
+    df.drop(['unit', 'adjfactor'], axis=1, inplace=True)
     trade_dt_list = get_all_trade_dt().trade_dt
     df = df[df.trade_dt.isin(trade_dt_list)].reset_index(drop=True)
     return df
