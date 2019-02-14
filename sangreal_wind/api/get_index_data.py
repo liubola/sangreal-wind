@@ -18,7 +18,7 @@ def get_index_data_tmp(index_list=None,
     elif index_type == "wind":
         table = getattr(WIND_DB, "AindexWindIndustriesEOD".upper())
     elif index_type == 'sw':
-        table = getattr(WIND_DB, "ASWSIndexEOD")
+        table = getattr(WIND_DB, "ASWSIndexEOD".upper())
 
     tmp_query = WIND_DB.query(
         table.S_INFO_WINDCODE, table.TRADE_DT, table.S_DQ_OPEN,

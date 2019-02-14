@@ -16,7 +16,8 @@ def get_fund_list():
                            table0.S_INFO_SECTOR == table1.INDUSTRIESCODE,
                            table0.S_INFO_SECTORENTRYDT != None,
                            table0.S_INFO_SECTOREXITDT == None).to_df()
-    df = df[df['INDUSTRIESNAME'].isin(FUND_TYPE)]
+    df.columns = [c.lower() for c in df.columns]
+    df = df[df['INDUSTRIESNAME'.lower()].isin(FUND_TYPE)]
     df.columns = ['sid', 'entry_dt', 'exit_dt', 'fund_type']
     return df
 

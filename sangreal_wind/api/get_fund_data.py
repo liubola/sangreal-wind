@@ -20,7 +20,6 @@ def get_fund_nav(fund_list=None, begin_dt='20010101', end_dt='20990101'):
         table.F_INFO_WINDCODE, table.PRICE_DATE, table.F_NAV_ADJUSTED).filter(
             table.PRICE_DATE >= begin_dt, table.PRICE_DATE <= end_dt).order_by(
                 table.PRICE_DATE, table.F_INFO_WINDCODE)
-
     if isinstance(fund_list, str):
         tmp_query = tmp_query.filter(table.F_INFO_WINDCODE == fund_list)
     elif isinstance(fund_list, Iterable):
