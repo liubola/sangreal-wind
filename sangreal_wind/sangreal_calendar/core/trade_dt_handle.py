@@ -112,7 +112,7 @@ def step_trade_dt(date, step=1):
         except IndexError:
             return t_df['trade_dt'].iloc[0]
 
-
+@lru_cache()
 def delta_trade_dt(begin_dt, end_dt):
     """[get length of trade_dt, include begin_dt and end_dt]
     

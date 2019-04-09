@@ -8,30 +8,37 @@ from sangreal_wind.utils.engines import WIND_DB
 indx_error = f"请输入正确的指数简称，如{list(INDEX_DICT.keys())}，或指数wind代码！"
 
 
-def universe_A():
+def universe_A(cur_sign=True):
     """[返回最新全A成份股]
-    
+
+    Keyword Arguments:
+        cur_sign {bool} -- [是否需要最新的股票池] (default: {True})
+
     Returns:
         [set] -- [set of stk code]
     """
 
     table = WIND_DB.AINDEXMEMBERSWIND
-    df = WIND_DB.query(table.S_CON_WINDCODE).filter(
-        table.F_INFO_WINDCODE == '881001.WI', table.CUR_SIGN == '1').to_df()
+    query = WIND_DB.query(table.S_CON_WINDCODE).filter(
+        table.F_INFO_WINDCODE == '881001.WI')
+    if cur_sign:
+        df = query.filter(table.CUR_SIGN == '1').to_df()
+    else:
+        df = query.to_df()
     df.columns = ['sid']
     return set(df.sid)
 
 
-def universe_normal(indx):
+def universe_normal(indx, cur_sign=True):
     """[返回指数的最新份股]
-    
+
     Arguments:
         indx {[str]} -- [wind code of index]
-    
+        cur_sign {bool} -- [是否需要最新的股票池] (default: {True})
     Raises:
         ValueError -- [description]
         ValueError -- [description]
-    
+
     Returns:
         [set] -- [set of stk code]
     """
@@ -42,45 +49,57 @@ def universe_normal(indx):
         if '.' not in indx:
             raise ValueError(indx_error)
     table = getattr(WIND_DB, 'AIndexMembers'.upper())
-    df = WIND_DB.query(table.S_CON_WINDCODE).filter(
-        table.CUR_SIGN == '1', table.S_INFO_WINDCODE == indx).to_df()
+    query = WIND_DB.query(table.S_CON_WINDCODE).filter(
+        table.S_INFO_WINDCODE == indx)
+    if cur_sign:
+        df = query.filter(
+            table.CUR_SIGN == '1', ).to_df()
+    else:
+        df = query.to_df()
     df.columns = ['sid']
     if df.empty:
         raise ValueError(indx_error)
     return set(df.sid)
 
 
-def universe_msci():
+def universe_msci(cur_sign=True):
     """[返回MSCI最新成分股]
-    
+    Arguments:
+        cur_sign {bool} -- [是否需要最新的股票池] (default: {True})
+
     Returns:
         [set] -- [set of stk code]
     """
 
     table = getattr(WIND_DB, 'AshareMSCIMembers'.upper())
-    df = WIND_DB.query(
-        table.S_INFO_WINDCODE).filter(table.CUR_SIGN == '1').to_df()
+    query = WIND_DB.query(
+        table.S_INFO_WINDCODE)
+    if cur_sign:
+        df = query.filter(table.CUR_SIGN == '1').to_df()
+    else:
+        df = query.to_df()
 
     df.columns = ['sid']
     return set(df.sid)
 
 
-def Universe(indx):
+def Universe(indx, cur_sign=True):
     """[返回指数的最新成分股]
-    
+
     Arguments:
         indx {[str]} -- [wind code of index or abbrev]
-    
+        cur_sign {bool} -- [是否需要最新的股票池] (default: {True})
+
     Returns:
         [set] -- [set of stk code]
     """
 
     if indx == 'MSCI':
-        return universe_msci()
+        return universe_msci(cur_sign=cur_sign)
     elif indx == 'A':
-        return universe_A()
+        return universe_A(cur_sign=cur_sign)
     else:
-        return universe_normal(indx)
+        return universe_normal(indx, cur_sign=cur_sign)
 
 
 @lru_cache()
@@ -96,8 +115,8 @@ def get_all_normal_index(index):
 @lru_cache()
 def get_all_msci():
     table = getattr(WIND_DB, 'AshareMSCIMembers'.upper())
-    df = WIND_DB.query(table.S_INFO_WINDCODE, table.ENTRY_DT,
-                       table.REMOVE_DT).to_df()
+    df = WIND_DB.query(table.S_INFO_WINDCODE,
+                       table.ENTRY_DT, table.REMOVE_DT).to_df()
     df.columns = ['sid', 'entry_dt', 'out_dt']
     return df
 
@@ -116,10 +135,10 @@ def get_all_stk():
 @attr.s
 class DynamicUniverse:
     """[get stock_list of universe on trade_dt]
-    
+
     Raises:
         ValueError -- [description]
-    
+
     Returns:
         [set] -- [description]
     """
