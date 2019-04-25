@@ -3,9 +3,11 @@
 """
 
 import os
+
 import yaml
-from sqlalchemy import create_engine
 from sangreal_db import DataBase
+from sqlalchemy import create_engine
+
 """""" """""" """""" """""" """""" ""
 "        读取配置文件内容         "
 """""" """""" """""" """""" """""" ""
@@ -53,10 +55,13 @@ The yaml' type is like {YAML_TYPE}")
         bundle_dir = f"{os.path.expanduser(f'~{os.sep}.sangreal{os.sep}backtest{os.sep}bundle{os.sep}')}"
     return bundle_dir
 
+
 # 实例化数据库 ENGINE
 WIND_DB, ENGINE = get_db(config, 'wind.config')
 
 # 回测框架本地文件存放的数据
 BUNDLE_DIR = get_bundle(config, 'bundle.config')
+if not BUNDLE_DIR.endswith(os.sep):
+    raise ValueError(f'bundle_dir的路径必须以{os.sep}结尾')
 if not os.path.exists(BUNDLE_DIR):
     os.makedirs(BUNDLE_DIR)
