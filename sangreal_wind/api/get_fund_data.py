@@ -5,12 +5,12 @@ from collections import Iterable
 
 def get_fund_nav(fund_list=None, begin_dt='20010101', end_dt='20990101'):
     """[获取基金净值]
-    
+
     Keyword Arguments:
         fund_list {[str or iterable or None]} -- [list of funds or fund] (default: {None})
         begin_dt {str} -- [description] (default: {'20010101'})
         end_dt {str} -- [description] (default: {'20990101'})
-    
+
     Returns:
         [pd.DataFrame] -- [f_sid|trade_dt|s_close]
     """

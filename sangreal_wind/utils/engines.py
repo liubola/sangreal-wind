@@ -29,7 +29,7 @@ The yaml' type is like {YAML_TYPE}")
 
 # 读取数据
 with open(CONFIG_FILE, 'r') as f:
-    config = yaml.load(f)
+    config = yaml.safe_load(f)
 
 
 def get_db(config, k):
