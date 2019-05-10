@@ -36,8 +36,8 @@ class RefreshBase(metaclass=ABCMeta):
 
         end_dt = step_trade_dt(date, 300)
         df = self.get(date, end_dt).tolist()
-        # if df[0] == date:
-        #     return df[1]
+        if df[0] == date:
+            return df[1]
         return df[0]
 
     @lru_cache()
@@ -53,8 +53,8 @@ class RefreshBase(metaclass=ABCMeta):
 
         begin_dt = step_trade_dt(date, -300)
         df = self.get(begin_dt, date).tolist()
-        # if df[-1] == date:
-        #     return df[-2]
+        if df[-1] == date:
+            return df[-2]
         return df[-1]
 
     @staticmethod
