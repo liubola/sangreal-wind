@@ -27,35 +27,40 @@ bundle.config:
 """
 
 if not os.path.isfile(CONFIG_FILE):
-    raise Exception(
-        f"{CONFIG_FILE_NAME} does not exist!, check {HOME_PATH} and touch it!\
-The yaml' type is like {YAML_TYPE}")
-
-# 读取数据
-with open(CONFIG_FILE, 'r') as f:
-    config = yaml.safe_load(f)
+    print(f"{CONFIG_FILE_NAME} does not exist!, you can check {HOME_PATH} and touch it!\
+ The yaml' type is like {YAML_TYPE}")
+    config = None
+else:
+    # 读取数据
+    with open(CONFIG_FILE, 'r') as f:
+        config = yaml.safe_load(f)
 
 
 def get_db(config, k):
-    db_config = config.get(k, None)
-    if db_config is None:
-        raise ValueError(f"Please check the {CONFIG_FILE} and add {k}!\
-The yaml' type is like {YAML_TYPE}")
-    engine = create_engine(db_config['engine'])
-    schema = db_config['schema']
-    # print(schema, isinstance(schema, str))
-    return DataBase(engine, schema), engine
+    if config is not None:
+        db_config = config.get(k, None)
+        if db_config is None:
+            raise ValueError(f"Please check the {CONFIG_FILE} and add {k}!\
+    The yaml' type is like {YAML_TYPE}")
+        engine = create_engine(db_config['engine'])
+        schema = db_config['schema']
+        return DataBase(engine, schema), engine
+    else:
+        return DataBase(None), None
 
 
 def get_bundle(config, k):
-    bundle_config = config.get(k, None)
-    if bundle_config is not None:
-        #         raise ValueError(f"Please check the {CONFIG_FILE} and add {k}!\
-        # The yaml' type is like {YAML_TYPE}")
-        bundle_dir = bundle_config['dir']
-        if bundle_dir is None:
-            bundle_dir = f"{os.path.expanduser(f'~{os.sep}.sangreal{os.sep}backtest{os.sep}bundle{os.sep}')}"
-        return bundle_dir
+    if config is not None:
+        bundle_config = config.get(k, None)
+        if bundle_config is not None:
+            #         raise ValueError(f"Please check the {CONFIG_FILE} and add {k}!\
+            # The yaml' type is like {YAML_TYPE}")
+            bundle_dir = bundle_config['dir']
+            if bundle_dir is None:
+                bundle_dir = f"{os.path.expanduser(f'~{os.sep}.sangreal{os.sep}backtest{os.sep}bundle{os.sep}')}"
+            return bundle_dir
+        else:
+            return
     else:
         return
 
