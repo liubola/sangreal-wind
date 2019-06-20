@@ -1,6 +1,8 @@
 import attr
 import pandas as pd
 from fastcache import lru_cache
+
+from sangreal_wind.api.get_index_weight import get_index_weight
 from sangreal_wind.utils.commons import INDEX_DICT
 from sangreal_wind.utils.datetime_handle import dt_handle
 from sangreal_wind.utils.engines import WIND_DB
@@ -158,18 +160,23 @@ class DynamicUniverse:
         except KeyError:
             self.index = self.indx
 
-    def preview(self, trade_dt):
-        if self.index != '':
-            df = get_all_normal_index(self.index)
-        elif self.indx == 'MSCI':
-            df = get_all_msci()
-        elif self.indx == 'A':
-            df = get_all_stk()
+    def preview(self, trade_dt, weight=False):
+        if not weight:
+            if self.index != '':
+                df = get_all_normal_index(self.index)
+            elif self.indx == 'MSCI':
+                df = get_all_msci()
+            elif self.indx == 'A':
+                df = get_all_stk()
 
-        trade_dt = dt_handle(trade_dt)
-        df = df.loc[(df['entry_dt'] <= trade_dt) & (
-            (df['out_dt'] >= trade_dt) | (df['out_dt'].isnull()))]
-        return set(df.sid)
+            trade_dt = dt_handle(trade_dt)
+            df = df.loc[(df['entry_dt'] <= trade_dt) & (
+                (df['out_dt'] >= trade_dt) | (df['out_dt'].isnull()))]
+            return set(df.sid)
+        else:
+            df = get_index_weight(index=self.index, trade_dt=trade_dt)
+            df.set_index('sid', inplace=True)
+            return df
 
 
 if __name__ == '__main__':

@@ -20,13 +20,13 @@ def get_index_weight_all(index):
 
 def get_index_weight(index, trade_dt=None):
     """[获取指数成份权重]
-    
+
     Arguments:
         index {[str]} -- [windcode of index]
-    
+
     Keyword Arguments:
         trade_dt {[str or datetime]} -- [trade_dt] (default: {None})
-    
+
     Returns:
         [pd.DataFrame] -- [sid, weight]
     """
@@ -43,6 +43,19 @@ def get_index_weight(index, trade_dt=None):
     t = df.trade_dt.iloc[0]
     df = df[df['trade_dt'] == t]
     df.drop(['trade_dt'], axis=1, inplace=True)
+    if t != trade_dt:
+        table = getattr(WIND_DB, 'AShareEODPrices'.upper())
+        q = WIND_DB.query(table.S_INFO_WINDCODE.label(
+            'sid'), table.S_DQ_ADJCLOSE).filter(table.S_INFO_WINDCODE.in_(df.sid))
+        c1 = q.filter(table.TRADE_DT == t).to_df().set_index('sid').iloc[:, 0]
+        c2 = q.filter(table.TRADE_DT == trade_dt).to_df(
+        ).set_index('sid').iloc[:, 0]
+        adjust_factor = c2 / c1
+        df.set_index('sid', inplace=True)
+        df['weight'] = df['weight'] * adjust_factor
+        df['weight'] /= df['weight'].sum()
+        df.reset_index(inplace=True)
+
     return df.reset_index(drop=True)
 
 
