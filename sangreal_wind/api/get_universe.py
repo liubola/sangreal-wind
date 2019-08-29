@@ -162,12 +162,12 @@ class DynamicUniverse:
 
     def preview(self, trade_dt, weight=False):
         if not weight:
-            if self.index != '':
-                df = get_all_normal_index(self.index)
-            elif self.indx == 'MSCI':
+            if self.indx == 'MSCI':
                 df = get_all_msci()
             elif self.indx == 'A':
                 df = get_all_stk()
+            elif self.index != '':
+                df = get_all_normal_index(self.index)
 
             trade_dt = dt_handle(trade_dt)
             df = df.loc[(df['entry_dt'] <= trade_dt) & (
@@ -175,8 +175,11 @@ class DynamicUniverse:
             return set(df.sid)
         else:
             df = get_index_weight(index=self.index, trade_dt=trade_dt)
-            df.set_index('sid', inplace=True)
-            return df
+            if not df.empty:
+                df.set_index('sid', inplace=True)
+                return df
+            else:
+                raise ValueError(f'{self.index}无权重数据！')
 
 
 if __name__ == '__main__':

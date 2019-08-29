@@ -7,16 +7,25 @@ from sangreal_wind.utils import dt_handle
 from sangreal_wind.utils.engines import WIND_DB
 
 
+class DynamicIndustry:
+    def __init__(self, ind):
+        self.ind = ind
+
+    def preview(self, trade_dt):
+        all_stk = get_industry(trade_dt=trade_dt, level=1, sid=None)
+        return set(all_stk[all_stk['ind'] == self.ind].index)
+
+
 def get_industry(trade_dt, sid=None, level=1):
     """[get industry of stock 中信行业]
-    
+
     Arguments:
         trade_dt {[str or datetime]} -- [trade_dt]
-    
+
     Keyword Arguments:
         sid {[str or iterable]} -- [sids of stocks] (default: {None})
         level {int} -- [level of zx industry] (default: {1})
-    
+
     Returns:
         [pd.DataFrame] -- [sid: ind]
     """
@@ -29,6 +38,9 @@ def get_industry(trade_dt, sid=None, level=1):
 
     df = df.loc[(df['entry_dt'] <= trade_dt) & (
         (df['out_dt'] >= trade_dt) | (df['out_dt'].isnull()))].copy()
+    # 去除行业中的罗马数字
+    p = re.compile(r"[^\u4e00-\u9fa5]")
+    df.ind = df.ind.str.replace(p, '', regex=True)
     return df.set_index('sid')[['ind']]
 
 
@@ -53,14 +65,14 @@ def get_industry_all(level=1):
 
 def get_industry_sp(trade_dt, sid=None, split=['银行', '非银行金融']):
     """[将split中部分中信一级行业转换为相应的二级行业]
-    
+
     Arguments:
         trade_dt {[str]} -- [description]
-    
+
     Keyword Arguments:
         sid      {[str or iterable]} -- [sids of stocks] (default: {None})
         split      {list} -- [industry which convert level1 to level2] (default: {['银行', '非银行金融']})
-    
+
     Returns:
         [pd.DataFrame] -- [sid: ind]
     """
