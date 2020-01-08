@@ -27,13 +27,13 @@ bundle.config:
 """
 
 if not os.path.isfile(CONFIG_FILE):
-    print(f"{CONFIG_FILE_NAME} does not exist!, you can check {HOME_PATH} and touch it!\
- The yaml' type is like {YAML_TYPE}")
+#     print(f"{CONFIG_FILE_NAME} does not exist!, you can check {HOME_PATH} and touch it!\
+#  The yaml' type is like {YAML_TYPE}")
     config = None
 else:
     # 读取数据
     with open(CONFIG_FILE, 'r') as f:
-        config = yaml.safe_load(f)
+        config = yaml.load(f, Loader=yaml.FullLoader)
 
 
 def get_db(config, k):

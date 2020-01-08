@@ -8,12 +8,14 @@ from sangreal_wind.utils.engines import WIND_DB
 
 
 class DynamicIndustry:
-    def __init__(self, ind):
+    def __init__(self, ind=None):
         self.ind = ind
 
     def preview(self, trade_dt):
         all_stk = get_industry(trade_dt=trade_dt, level=1, sid=None)
-        return set(all_stk[all_stk['ind'] == self.ind].index)
+        if self.ind is not None:
+            return set(all_stk[all_stk['ind'] == self.ind].index)
+        return set(all_stk.index)
 
 
 def get_industry(trade_dt, sid=None, level=1):
@@ -55,7 +57,7 @@ def get_industry_all(level=1):
         df = df.filter(
             func.substring(clss.CITICS_IND_CODE, 1, 2 + 2 * level) == func.
             substring(ind_code.INDUSTRIESCODE, 1, 2 + 2 * level)).to_df()
-    except OperationalError:
+    except:
         df = df.filter(
             func.substr(clss.CITICS_IND_CODE, 1, 2 + 2 * level) == func.substr(
                 ind_code.INDUSTRIESCODE, 1, 2 + 2 * level)).to_df()
@@ -102,4 +104,4 @@ def get_industry_sp(trade_dt, sid=None, split=['银行', '非银行金融']):
 
 
 if __name__ == '__main__':
-    print(get_industry('20181122').head())
+    print(len(DynamicIndustry().preview('20180101')))

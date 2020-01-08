@@ -9,7 +9,7 @@ from sangreal_wind.sangreal_calendar.utils import dt_handle
 
 class RefreshBase(metaclass=ABCMeta):
     """获取调仓日期的基类
-    
+
     Attributes: 
         *args: -1 or 1, int or (1, -1)
     """
@@ -24,38 +24,50 @@ class RefreshBase(metaclass=ABCMeta):
         pass
 
     @lru_cache()
-    def next(self, date):
+    def next(self, date, step=1, adjust=True):
         """[get next date, 20180921 -> 20180928(Monthly(-1))]
-        
+
         Arguments:
             date {[str or datetime]} -- [date]
-        
+            adjust {[bool]} -- [if adjust & date is the key day, pass]
+            step {[int]} -- [step numbers]
+
         Returns:
             [str] -- [next day in class frequency]
         """
 
-        end_dt = step_trade_dt(date, 300)
+        end_dt = step_trade_dt(date, 600)
         df = self.get(date, end_dt).tolist()
-        if df[0] == date:
-            return df[1]
-        return df[0]
-
+        try:
+            if df[0] == date:
+                if adjust:
+                    return df[step]
+            return df[step-1]
+        except IndexError:
+            return df[-1]
+            
     @lru_cache()
-    def prev(self, date):
+    def prev(self, date, step=1, adjust=True):
         """[get previous day, 20180921 -> 20180831(Monthly(-1))]
-        
+
         Arguments:
             date {[str or datetime]} -- [date]
-        
+            adjust {[bool]} -- [if adjust & date is the key day, pass]
+            step {[int]} -- [step numbers]
+
         Returns:
             [str] -- [previous day in class frequency]
         """
 
-        begin_dt = step_trade_dt(date, -300)
+        begin_dt = step_trade_dt(date, -600)
         df = self.get(begin_dt, date).tolist()
-        if df[-1] == date:
-            return df[-2]
-        return df[-1]
+        try:
+            if df[-1] == date:
+                if adjust:
+                    return df[-1-step]
+            return df[-step]
+        except IndexError:
+            return df[0]
 
     @staticmethod
     def freq_handle(arg, df, step=1):
@@ -107,14 +119,14 @@ class RefreshBase(metaclass=ABCMeta):
 class Monthly(RefreshBase):
     def get(self, begin_dt='19900101', end_dt='20990101'):
         """[get trade_dt Series with class freq]
-        
+
         Arguments:
             RefreshBase {[cls]} -- [refreshbase]
-        
+
         Keyword Arguments:
             begin_dt {str or datetime} -- [begin_dt] (default: {'19900101'})
             end_dt {str or datetime} -- [end_dt] (default: {'20990101'})
-        
+
         Returns:
             [pd.Series] -- [trade_dt Series]
         """
@@ -129,14 +141,14 @@ class Monthly(RefreshBase):
 class Weekly(RefreshBase):
     def get(self, begin_dt='19900101', end_dt='20990101'):
         """[get trade_dt Series with class freq]
-        
+
         Arguments:
             RefreshBase {[cls]} -- [refreshbase]
-        
+
         Keyword Arguments:
             begin_dt {str or datetime} -- [begin_dt] (default: {'19900101'})
             end_dt {str or datetime} -- [end_dt] (default: {'20990101'})
-        
+
         Returns:
             [pd.Series] -- [trade_dt Series]
         """
@@ -151,14 +163,14 @@ class Weekly(RefreshBase):
 class BiWeekly(RefreshBase):
     def get(self, begin_dt='19900101', end_dt='20990101'):
         """[get trade_dt Series with class freq]
-        
+
         Arguments:
             RefreshBase {[cls]} -- [refreshbase]
-        
+
         Keyword Arguments:
             begin_dt {str or datetime} -- [begin_dt] (default: {'19900101'})
             end_dt {str or datetime} -- [end_dt] (default: {'20990101'})
-        
+
         Returns:
             [pd.Series] -- [trade_dt Series]
         """
@@ -178,14 +190,14 @@ class BiWeekly(RefreshBase):
 class Quarterly(RefreshBase):
     def get(self, begin_dt='19900101', end_dt='20990101'):
         """[get trade_dt Series with class freq]
-        
+
         Arguments:
             RefreshBase {[cls]} -- [refreshbase]
-        
+
         Keyword Arguments:
             begin_dt {str or datetime} -- [begin_dt] (default: {'19900101'})
             end_dt {str or datetime} -- [end_dt] (default: {'20990101'})
-        
+
         Returns:
             [pd.Series] -- [trade_dt Series]
         """
@@ -211,14 +223,14 @@ class Reportly(RefreshBase):
 
     def get(self, begin_dt='19900101', end_dt='20990101'):
         """[get trade_dt Series with class freq]
-        
+
         Arguments:
             RefreshBase {[cls]} -- [refreshbase]
-        
+
         Keyword Arguments:
             begin_dt {str or datetime} -- [begin_dt] (default: {'19900101'})
             end_dt {str or datetime} -- [end_dt] (default: {'20990101'})
-        
+
         Returns:
             [pd.Series] -- [trade_dt Series]
         """
@@ -251,14 +263,14 @@ class Reportly(RefreshBase):
 class Yearly(RefreshBase):
     def get(self, begin_dt='19900101', end_dt='20990101'):
         """[get trade_dt Series with class freq]
-        
+
         Arguments:
             RefreshBase {[cls]} -- [refreshbase]
-        
+
         Keyword Arguments:
             begin_dt {str or datetime} -- [begin_dt] (default: {'19900101'})
             end_dt {str or datetime} -- [end_dt] (default: {'20990101'})
-        
+
         Returns:
             [pd.Series] -- [trade_dt Series]
         """
@@ -280,14 +292,14 @@ class Halfyearly(RefreshBase):
 
     def get(self, begin_dt='19900101', end_dt='20990101'):
         """[get trade_dt Series with class freq]
-        
+
         Arguments:
             RefreshBase {[cls]} -- [refreshbase]
-        
+
         Keyword Arguments:
             begin_dt {str or datetime} -- [begin_dt] (default: {'19900101'})
             end_dt {str or datetime} -- [end_dt] (default: {'20990101'})
-        
+
         Returns:
             [pd.Series] -- [trade_dt Series]
         """
@@ -304,7 +316,7 @@ class Halfyearly(RefreshBase):
 
 
 if __name__ == '__main__':
-    m = Halfyearly(-1)
+    m = Monthly(-1)
     lst = m.get()
-    print(lst, type(lst))
-    print(m.next('20161220'), m.prev('20161220'))
+    step = 2
+    print(m.next('20161220', step=step), m.prev('20161220', step=step))
