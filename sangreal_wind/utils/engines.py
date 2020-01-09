@@ -60,7 +60,8 @@ def get_bundle(config, k):
                 bundle_dir = f"{os.path.expanduser(f'~{os.sep}.sangreal{os.sep}backtest{os.sep}bundle{os.sep}')}"
             return bundle_dir
         else:
-            return
+            bundle_dir = f"{os.path.expanduser(f'~{os.sep}.sangreal{os.sep}backtest{os.sep}bundle{os.sep}')}"
+            return bundle_dir
     else:
         return
 
