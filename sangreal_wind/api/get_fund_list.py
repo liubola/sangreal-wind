@@ -1,6 +1,6 @@
 from sangreal_wind.utils.engines import WIND_DB
 from sangreal_wind.utils.fund_type import FUND_TYPE
-from fastcache import lru_cache
+from functools import lru_cache
 from collections import Iterable
 
 FUND_TYPE_LEVEL0 = ['股票型基金', '混合型基金', '债券型基金']

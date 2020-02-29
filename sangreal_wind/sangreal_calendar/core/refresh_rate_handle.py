@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 import pandas as pd
-from fastcache import lru_cache
+from functools import lru_cache
 from sangreal_wind.sangreal_calendar.core.trade_dt_handle import (
     adjust_trade_dt, get_trade_dt_list, step_trade_dt)
 from sangreal_wind.sangreal_calendar.utils import dt_handle

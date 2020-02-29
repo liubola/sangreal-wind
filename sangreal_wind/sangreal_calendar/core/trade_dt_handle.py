@@ -1,5 +1,5 @@
 import pandas as pd
-from fastcache import lru_cache
+from functools import lru_cache
 from sangreal_wind.sangreal_calendar.datasource import mixin_trade_dt
 from sangreal_wind.sangreal_calendar.utils import dt_handle
 

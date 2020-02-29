@@ -1,6 +1,6 @@
 import attr
 import pandas as pd
-from fastcache import lru_cache
+from functools import lru_cache
 
 from sangreal_wind.api.get_index_weight import get_index_weight
 from sangreal_wind.utils.commons import INDEX_DICT
