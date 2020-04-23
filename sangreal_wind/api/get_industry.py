@@ -11,8 +11,9 @@ class DynamicIndustry:
     def __init__(self, ind=None):
         self.ind = ind
 
-    def preview(self, trade_dt):
-        all_stk = get_industry(trade_dt=trade_dt, level=1, sid=None)
+    def preview(self, trade_dt, adjust=True):
+        # adjust {bool} -- [由于中信变更行业分类，是否调整兼容之前的代码] (default: {True})
+        all_stk = get_industry(trade_dt=trade_dt, level=1, sid=None, adjust=adjust)
         if self.ind is not None:
             return set(all_stk[all_stk['ind'] == self.ind].index)
         return set(all_stk.index)
@@ -74,7 +75,7 @@ def get_industry_all(level=1, adjust=True):
             elif x in ('多领域控股', '资产管理', '新兴金融服务'):
                 return '多元金融'
             elif x in ('全国性股份制银行', '区域性银行'):
-                return '股份制及城商行'
+                return '股份制与城商行'
             else:
                 return x
         df.ind = df.ind.map(ind_map)
