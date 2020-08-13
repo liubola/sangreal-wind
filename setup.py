@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='sangreal-wind',
-    version='0.0.55',
+    version='0.0.56',
     description=('short cut api for wind'),
     install_requires=[
         'sangreal-db',
