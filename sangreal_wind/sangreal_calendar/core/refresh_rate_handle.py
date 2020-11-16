@@ -45,7 +45,7 @@ class RefreshBase(metaclass=ABCMeta):
             return df[step-1]
         except IndexError:
             return df[-1]
-            
+
     @lru_cache()
     def prev(self, date, step=1, adjust=True):
         """[get previous day, 20180921 -> 20180831(Monthly(-1))]
@@ -114,6 +114,27 @@ class RefreshBase(metaclass=ABCMeta):
             (all_trade_dt >= begin_dt)
             & (all_trade_dt <= end_dt)].drop_duplicates()
         return all_trade_dt
+
+
+class Daily(RefreshBase):
+    def get(self, begin_dt='19900101', end_dt='20990101'):
+        """[get trade_dt Series with class freq]
+
+        Arguments:
+            RefreshBase {[cls]} -- [refreshbase]
+
+        Keyword Arguments:
+            begin_dt {str or datetime} -- [begin_dt] (default: {'19900101'})
+            end_dt {str or datetime} -- [end_dt] (default: {'20990101'})
+
+        Returns:
+            [pd.Series] -- [trade_dt Series]
+        """
+
+        return get_trade_dt_list(
+            begin_dt,
+            end_dt,
+            astype='pd')['trade_dt'].copy()
 
 
 class Monthly(RefreshBase):
