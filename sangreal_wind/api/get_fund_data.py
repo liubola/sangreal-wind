@@ -1,10 +1,8 @@
 from collections import Iterable
 
-from sqlalchemy import func
-from sqlalchemy.exc import OperationalError
-
-from sangreal_wind.sangreal_calendar import get_all_trade_dt
+from sangreal_wind.sangreal_calendar import CALENDAR
 from sangreal_wind.utils.engines import WIND_DB
+from sqlalchemy import func
 
 
 def get_fund_nav(fund_list=None, begin_dt='20010101', end_dt='20990101'):
@@ -48,7 +46,7 @@ def get_fund_nav(fund_list=None, begin_dt='20010101', end_dt='20990101'):
     df.columns = ['f_sid', 'trade_dt', 'adjfactor', 'unit']
     df['s_close'] = df['adjfactor'] * df['unit']
     df.drop(['unit', 'adjfactor'], axis=1, inplace=True)
-    trade_dt_list = get_all_trade_dt().trade_dt
+    trade_dt_list = CALENDAR.dates
     df = df[df.trade_dt.isin(trade_dt_list)].reset_index(drop=True)
     return df
 
