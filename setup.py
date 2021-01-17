@@ -2,10 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='sangreal-wind',
-    version='0.0.61',
+    version='0.0.62',
     description=('short cut api for wind'),
     install_requires=[
         'sangreal-db',
+        'sangreal-calendar >= 0.0.36',
         'sqlalchemy',
         'attrs',
     ],
